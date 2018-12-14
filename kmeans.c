@@ -134,7 +134,7 @@ int change_count(int n, int x[], int y[]){
 //n = number of elements
 //k = number of clusters
 
-void kmeans(int dim, int k, int n, int *output_cluster, double *centroid){
+void kmeans(int dim, int k, int n, double *X, int *output_cluster, double *centroid){
   double prev_total = BIG;
   int iter = 0; //number of iterations
 
