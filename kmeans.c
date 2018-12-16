@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <iostream>
+#include "csv.h"
 
+#define sqr(x) ((x)*(x))
 #define DATA_LENGTH 1000
 #define BIG (1000*1000)
 #define MAX 16
+
+int *output[BIG];
 
 void *alloc(size_t size){
   void *m = malloc(size);
@@ -19,7 +24,7 @@ double distance(int dim, double *x, double *y){
   double sum_sq = 0;
 
   for(int i = 0; i < dim; i++){
-    sum_sq = sqr(x[i] - y[i]);
+    sum_sq += sqr(x[i] - y[i]);
   }
 
   return sum_sq;
@@ -134,7 +139,7 @@ int change_count(int n, int x[], int y[]){
 //n = number of elements
 //k = number of clusters
 
-void kmeans(int dim, int k, int n, int *output_cluster, double *centroid){
+void kmeans(int dim, int k, int n, double *X,  int *output_cluster, double *centroid){
   double prev_total = BIG;
   int iter = 0; //number of iterations
 
@@ -180,3 +185,11 @@ void kmeans(int dim, int k, int n, int *output_cluster, double *centroid){
   free(prev_cluster);
 }
   
+int main(){
+  io::CSVReader<3> in("seeds.csv");
+  in.read_header(io::ignore_extra_column, "Dress_ID" , "Style", "Rating");
+  std::string Dress_ID; string Style; double *Rating;
+  while(in.read_row(Dress_ID, Style, Rating)){
+    kmeans(1, 501, 4, Rating, output, 1);
+  }
+}
