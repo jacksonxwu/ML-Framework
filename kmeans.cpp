@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <iostream>
+#include <string>
 #include "csv.h"
 
 #define sqr(x) ((x)*(x))
@@ -9,7 +10,7 @@
 #define BIG (1000*1000)
 #define MAX 16
 
-int *output[BIG];
+int output[BIG];
 
 void *alloc(size_t size){
   void *m = malloc(size);
@@ -36,7 +37,7 @@ double all_distance(int dim, int n, int k, double *X, double *centroid, double *
   int j;
 
   for(i = 0; i<n; i++){ //for each point
-    for(j = 0; j < k, j++){ //for each cluster
+    for(j = 0; j < k; j++){ //for each cluster
       dist[i*k + j] = distance(dim, &X[i*dim], &centroid[j*dim]);
     }
   }
@@ -58,13 +59,13 @@ void choose_cluster(int dim, int n, int k, double *dist_array, int *cluster_memb
 	closest_dist = current_dist; // set the current distance to be the new closest distance
       }
     }
-    cluster_member_index[i] = best_index; //put that point into the cluster
+    cluster_member_index[i] = best; //put that point into the cluster
   }
 }
 
 
 
-void update_clusters(int dim, int n, int k, double *X, int *cluster_member_index, double *new_centriod){
+void update_clusters(int dim, int n, int k, double *X, int *cluster_member_index, double *new_centroid){
   int member_count[MAX]; //initalize member count
   int i, j;
 
@@ -80,9 +81,9 @@ void update_clusters(int dim, int n, int k, double *X, int *cluster_member_index
   //add up all the points in each cluster
   for(i = 0; i<n; i++){
     int curr_cluster = cluster_member_index[i];
-    member_count[current_cluster]++; //update the number of members in the cluster
+    member_count[curr_cluster]++; //update the number of members in the cluster
 
-    for(j=0; j < dim, j++){
+    for(j=0; j < dim; j++){
       new_centroid[curr_cluster*dim + j] += X[i*dim +j]; //coordinate for finding centroid
     }
 
@@ -113,11 +114,11 @@ void diagram(int dim, int n, int k, double *X, int *cluster_member_index, double
 }
 
 //copies kmeans results into an array
-void copy(int n, int *old, int *new){
+void copy(int n, int *old, int *target){
   int i;
 
-  for(i=0; i<n, i++){
-    old[i] = new[i];
+  for(i=0; i<n; i++){
+    old[i] = target[i];
   }
 }
 
@@ -150,8 +151,8 @@ void kmeans(int dim, int k, int n, double *X,  int *output_cluster, double *cent
   int *prev_cluster = (int *)alloc(sizeof(int)*n);
 
   //initalize
-  all_distances(dim, n, k, X, centroid, dist);
-  choose_clusters(dim, n, k, dist, curr_cluster);
+  all_distance(dim, n, k, X, centroid, dist);
+  choose_cluster(dim, n, k, dist, curr_cluster);
   copy(n, curr_cluster, prev_cluster);
 
   while(iter < MAX){
@@ -163,8 +164,8 @@ void kmeans(int dim, int k, int n, double *X,  int *output_cluster, double *cent
     copy(n , curr_cluster, prev_cluster);
 
     //move all points to the nearest cluster
-    all_distances(dim, n, k, X, centroid, dist);
-    choose_clusters(dim, n, k, dist, curr_cluster);
+    all_distance(dim, n, k, X, centroid, dist);
+    choose_cluster(dim, n, k, dist, curr_cluster);
 
     //sees if the clusters changed or not
     int count = change_count(n, curr_cluster, prev_cluster);
@@ -191,6 +192,6 @@ int main(){
   in.read_header(io::ignore_extra_column, "Dress_ID" , "Style", "Rating");
   std::string Dress_ID; string Style; double *Rating;
   while(in.read_row(Dress_ID, Style, Rating)){
-    kmeans(1, 501, 4, Rating, output, 1);
+    kmeans(1, 501, 4, Rating, output, Rating);
   }
 }
